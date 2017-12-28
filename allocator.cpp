@@ -24,6 +24,10 @@ struct reserved_allocator
     using value_type = T;
     //using Traits = std::allocator_traits<reserved_allocator<T,10>>;
     using type = T;
+    using pointer = T*;
+    using const_pointer = T const*;
+    using reference = T&;
+    using const_reference = T const&;
     reserved_allocator()
     {
         reserved_allocator::reserv = 10;
