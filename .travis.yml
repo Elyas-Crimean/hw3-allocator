@@ -11,4 +11,4 @@ deploy:
   provider: script
   skip_cleanup: true
   script:
-  - curl -T ip_filter-1.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uElyas-Crimean:$BINTRAY_API_KEY "https://api.bintray.com/content/elyas-crimean/Elyas-otus/ip_filter/$TRAVIS_BUILD_NUMBER/ip_filter-1.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  - curl -T allocator-1.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uElyas-Crimean:$BINTRAY_API_KEY "https://api.bintray.com/content/elyas-crimean/Elyas-otus/allocator/$TRAVIS_BUILD_NUMBER/allocator-1.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
