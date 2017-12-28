@@ -55,7 +55,7 @@ struct reserved_allocator
     void deallocate(T* p, std::size_t n)
     {
     };
-/*    template<typename U, typename ... Args>
+    template<typename U, typename ... Args>
     void construct(U* p, Args&& ... args)
     {
         new(p) U(std::forward<Args>(args) ... );
@@ -64,7 +64,7 @@ struct reserved_allocator
     {
         p->~T();
     };
-*/    int reserved_count;
+    int reserved_count;
     int used_count;
     T* base_pointer;
     int reserv;
