@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 #include <memory>
 #include <cstdlib>
 
@@ -17,12 +18,10 @@ unsigned fact(unsigned a)
     return r;
 }
 
-template<class T>
+template<class T, int N>
 struct reserved_allocator
 {
-//    using type = T::type;
     using value_type = T;
-    //using Traits = std::allocator_traits<reserved_allocator<T,10>>;
     using type = T;
     using pointer = T*;
     using const_pointer = T const*;
@@ -30,27 +29,36 @@ struct reserved_allocator
     using const_reference = T const&;
     reserved_allocator()
     {
-        reserved_allocator::reserv = 10;
-        base_pointer = (T*)std::malloc(reserv*sizeof(T));
-        reserved_count = reserv;
-        used_count = 0;
+        reserved_allocator::reserv = N;
+        auto bp = (T*)std::malloc(reserv*sizeof(T));
+        if(bp){
+            base_pointer.push_back(bp);
+            reserved_count = reserv;
+            used_count = 0;
+            std::cout << bp;
+        }
     };
     ~reserved_allocator()
     {
-        free(base_pointer);
+        for(auto p : base_pointer){
+           free(p);
+       }
     };
       
     template<class Other>
-    struct rebind{typedef reserved_allocator<Other> other;};
+    struct rebind{typedef reserved_allocator<Other, N> other;};
 
     T* allocate(std::size_t n)
     {
-        if(used_count<reserved_count){
-            return base_pointer + used_count++;
-        }else{
-            //TODO reallocate
-            throw std::bad_alloc();
+        if(used_count==reserved_count){
+            auto bp = (T*)std::malloc(reserv*sizeof(T));
+            if(bp){
+                base_pointer.push_back(bp);
+            }
+            reserved_count+=reserv;
         }
+        used_count++;
+        return base_pointer[(used_count-1)/reserv] + (used_count-1)%reserv;
     };
     void deallocate(T* p, std::size_t n)
     {
@@ -64,9 +72,11 @@ struct reserved_allocator
     {
         p->~T();
     };
+    private:
     int reserved_count;
     int used_count;
-    T* base_pointer;
+    std::vector<T*> base_pointer;
+//    T* base_pointer;
     int reserv;
 };
 
@@ -78,7 +88,7 @@ struct Cell
 };
 
 template<class T,
-         class Allocator = std::allocator<Cell<T>>
+         class Allocator = std::allocator<T>
         > class My_list
 {
     public:
@@ -129,7 +139,8 @@ template<class T,
     iterator end() {return end_i;}
     
     private:
-    Allocator a;
+    typedef typename Allocator::template rebind<Cell<T>>::other Cell_a;
+    Cell_a a;
     Cell<T> *top;
     Cell<T> *last;
     Cell<T> empty;
@@ -150,8 +161,7 @@ int main(int argc, char **argv)
 */    
     std::map<unsigned int,unsigned int,
              std::less<unsigned int>,
-             reserved_allocator<std::pair<const unsigned int, unsigned int>
-                               >
+             reserved_allocator<std::pair<const unsigned int, unsigned int>,10>
             > my_allocator_map;
     for(int i=0; i<10;++i){
         my_allocator_map[i]=fact(i);   
@@ -164,7 +174,7 @@ int main(int argc, char **argv)
     for(int i=0; i<10;++i){
         my_std_list.push_back(i);
     }
-    My_list<int,reserved_allocator<Cell<int>>> my_custom_list;
+    My_list<int,reserved_allocator<int,7>> my_custom_list;
     for(int i=0; i<10;++i){
         my_custom_list.push_back(i);
     }
