@@ -41,9 +41,6 @@ struct reserved_allocator
     ~reserved_allocator()
     {
         for(auto p : base_pointer){
-            for(int i=0;i<N;++i){
-                destroy(p+i);
-            }
            free(p);
        }
     };
@@ -90,6 +87,12 @@ struct reserved_allocator
 template<class T>
 struct Cell
 {
+    Cell(const T& new_value)
+    {
+        value = new_value;
+    }
+    Cell() {};
+    ~Cell() { ~T(); }
     T value;
     Cell* next;
 };
@@ -130,6 +133,17 @@ template<class T,
         top_i = iterator(top);
         end_i = iterator(&empty);
     }    
+    ~My_list()
+    {
+        auto i = top;
+        while(i != &empty){
+                top = top->next;
+                a.destroy(i);
+                a.deallocate(i,1);
+                i=top;
+        }
+    }
+
     void push_back(const T new_value)
     {
         if(&empty != top){
@@ -139,7 +153,8 @@ template<class T,
             last = top;
             top_i = iterator(top);
         }
-        last->value = new_value;
+//        last->value = new_value;
+        a.construct(last,new_value);
         last->next = &empty;
     }
     iterator begin() {return top_i;}
