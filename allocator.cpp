@@ -41,6 +41,9 @@ struct reserved_allocator
     ~reserved_allocator()
     {
         for(auto p : base_pointer){
+            for(int i=0;i<N;++i){
+                destroy(p+i);
+            }
            free(p);
        }
     };
