@@ -50,6 +50,10 @@ struct reserved_allocator
 
     T* allocate(std::size_t n)
     {
+        if(n !=1){
+            std::cerr << "allocate limit is one element" <<std::endl;
+            exit(1);
+        }
         if(used_count==reserved_count){
             auto bp = (T*)std::malloc(reserv*sizeof(T));
             if(bp){
@@ -126,9 +130,9 @@ template<class T,
     void push_back(const T new_value)
     {
         if(&empty != top){
-             last = last->next = a.allocate(sizeof(Cell<T>));
+             last = last->next = a.allocate(1);
         }else{
-            top = a.allocate(sizeof(Cell<T>));
+            top = a.allocate(1);
             last = top;
             top_i = iterator(top);
         }
